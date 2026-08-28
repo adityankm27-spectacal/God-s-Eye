@@ -1,0 +1,14 @@
+{
+  "scene_id": "S1B_IW_GRDH_1SDV_20200810T013755_20200810T013820_022854_02B625",
+  "platform": "SENTINEL-1B",
+  "acquired_at": "2020-08-10T01:38:07.540969Z",
+  "mode": "IW",
+  "polarizations": [
+    "VV",
+    "VH"
+  ],
+  "orbit_state": "descending",
+  "detected_area_km2": 18.07,
+  "threshold_db": -18.64,
+  "location": "Mahebourg lagoon, Mauritius (MV Wakashio grounding site)"
+}

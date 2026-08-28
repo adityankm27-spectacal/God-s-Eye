@@ -1,5 +1,5 @@
 import Topbar from "@/components/Topbar";
-import MapView from "@/components/MapView";
+import SarViewer from "@/components/SarViewer";
 import Chart from "@/components/Chart";
 import { Card, KpiCard, Stat } from "@/components/ui";
 import { activeSpill } from "@/lib/mockData";
@@ -19,7 +19,7 @@ export default function CharacterizationPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           <Card title="Slick Geometry" subtitle="Segmented boundary from SAR dark-spot mask" icon={Ruler} className="lg:col-span-2">
-            <MapView height={380} showSlick />
+            <SarViewer height={380} />
           </Card>
 
           <Card title="Volume Estimation Model" subtitle="Area × thickness proxy (damping-ratio method)" icon={Gauge}>

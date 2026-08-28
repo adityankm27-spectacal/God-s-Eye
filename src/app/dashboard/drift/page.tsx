@@ -1,6 +1,7 @@
 import Topbar from "@/components/Topbar";
 import MapView from "@/components/MapView";
 import { Card, Stat, Badge } from "@/components/ui";
+import SarThumbCard from "@/components/SarThumbCard";
 import { coastalAssets } from "@/lib/mockData";
 import { Waves, History, TrendingUp, MapPinned } from "lucide-react";
 
@@ -51,6 +52,8 @@ export default function DriftPage() {
             </Card>
           </div>
         </div>
+
+        <SarThumbCard size="large" />
 
         <Card title="At-Risk Coastal Assets" subtitle="Sensitive zones along the forward drift cone" icon={MapPinned}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

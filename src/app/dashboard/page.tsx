@@ -3,6 +3,7 @@ import PipelineStrip from "@/components/PipelineStrip";
 import MapView from "@/components/MapView";
 import Chart from "@/components/Chart";
 import { Card, KpiCard, Badge } from "@/components/ui";
+import SarThumbCard from "@/components/SarThumbCard";
 import { activeSpill, kpis, historicalSpills, vessels } from "@/lib/mockData";
 import { Droplets, Ship, Radar, BellRing, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
@@ -91,6 +92,8 @@ export default function OverviewPage() {
                 View full ranking <ArrowUpRight className="h-3 w-3" />
               </Link>
             </Card>
+
+            <SarThumbCard />
           </div>
         </div>
 

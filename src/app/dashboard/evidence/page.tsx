@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Topbar from "@/components/Topbar";
 import { Card, Badge, Stat } from "@/components/ui";
+import SarThumbCard from "@/components/SarThumbCard";
 import { activeSpill, vessels, cleanupRecommendation } from "@/lib/mockData";
 import { FileWarning, Send, Download, CheckCircle2, Wrench, ShieldCheck } from "lucide-react";
 
@@ -108,6 +109,8 @@ export default function EvidencePage() {
             </div>
           </div>
         </Card>
+
+        <SarThumbCard className="max-w-md" />
       </main>
     </>
   );

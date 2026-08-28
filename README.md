@@ -9,6 +9,13 @@ Problem Statement **SIH26143** · Theme: Space Technology · Team **BlueVision**
 This is a **frontend demo**. All data is realistic mock data in `src/lib/mockData.ts` —
 no backend or live satellite feed is required to run or present it.
 
+**The SAR imagery is real.** `public/sar/` holds static renders of an actual Sentinel-1B
+pass over the MV Wakashio grounding site (Mahébourg Lagoon, Mauritius, 10 Aug 2020),
+radiometrically calibrated and segmented with a genuine CFAR dark-spot detector — not
+placeholder art. See `scripts/README.md` for how it was generated and `src/lib/sarImage.ts`
+for the metadata. It appears on the Spill Detection page and as a reference card on
+Overview, Characterization, Oil Type, Drift, Vessels and Evidence.
+
 ## Running it
 
 ```bash
@@ -51,4 +58,3 @@ Uses your installed Google Chrome via `puppeteer-core` — no extra browser down
 Next.js (App Router) · TypeScript · Tailwind CSS · MapLibre GL JS · Plotly.js · lucide-react
 
 Basemap tiles are Esri dark canvas (OpenStreetMap data) — no API key needed.
-# God-s-Eye

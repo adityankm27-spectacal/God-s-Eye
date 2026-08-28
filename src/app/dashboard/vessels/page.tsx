@@ -4,6 +4,7 @@ import { useState } from "react";
 import Topbar from "@/components/Topbar";
 import MapView from "@/components/MapView";
 import { Card, Badge, ProgressBar } from "@/components/ui";
+import SarThumbCard from "@/components/SarThumbCard";
 import { vessels } from "@/lib/mockData";
 import { Ship, ShieldAlert, Radar } from "lucide-react";
 import clsx from "clsx";
@@ -60,30 +61,34 @@ export default function VesselsPage() {
           </Card>
         </div>
 
-        <Card title={`Explainability — ${selected.name}`} subtitle="SHAP-style feature contribution to suspicion score" icon={Ship}>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
-              <div className="rounded-lg bg-surface-2 p-3"><p className="text-muted">MMSI</p><p className="font-medium mt-1 font-mono">{selected.mmsi}</p></div>
-              <div className="rounded-lg bg-surface-2 p-3"><p className="text-muted">Flag</p><p className="font-medium mt-1">{selected.flag}</p></div>
-              <div className="rounded-lg bg-surface-2 p-3"><p className="text-muted">Type</p><p className="font-medium mt-1">{selected.type}</p></div>
-              <div className="rounded-lg bg-surface-2 p-3"><p className="text-muted">Speed / Course</p><p className="font-medium mt-1">{selected.speedKt}kt / {selected.course}°</p></div>
-              <div className="rounded-lg bg-surface-2 p-3"><p className="text-muted">AIS Gap</p><p className="font-medium mt-1">{selected.aisGapMin > 0 ? `${selected.aisGapMin} min` : "None"}</p></div>
-              <div className="rounded-lg bg-surface-2 p-3"><p className="text-muted">Distance to slick</p><p className="font-medium mt-1">{selected.distanceKm} km</p></div>
-            </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <Card title={`Explainability — ${selected.name}`} subtitle="SHAP-style feature contribution to suspicion score" icon={Ship} className="lg:col-span-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
+                <div className="rounded-lg bg-surface-2 p-3"><p className="text-muted">MMSI</p><p className="font-medium mt-1 font-mono">{selected.mmsi}</p></div>
+                <div className="rounded-lg bg-surface-2 p-3"><p className="text-muted">Flag</p><p className="font-medium mt-1">{selected.flag}</p></div>
+                <div className="rounded-lg bg-surface-2 p-3"><p className="text-muted">Type</p><p className="font-medium mt-1">{selected.type}</p></div>
+                <div className="rounded-lg bg-surface-2 p-3"><p className="text-muted">Speed / Course</p><p className="font-medium mt-1">{selected.speedKt}kt / {selected.course}°</p></div>
+                <div className="rounded-lg bg-surface-2 p-3"><p className="text-muted">AIS Gap</p><p className="font-medium mt-1">{selected.aisGapMin > 0 ? `${selected.aisGapMin} min` : "None"}</p></div>
+                <div className="rounded-lg bg-surface-2 p-3"><p className="text-muted">Distance to slick</p><p className="font-medium mt-1">{selected.distanceKm} km</p></div>
+              </div>
 
-            <div className="space-y-2.5">
-              {selected.factors.map((f) => (
-                <div key={f.label}>
-                  <div className="flex justify-between text-xs mb-1">
-                    <span>{f.label}</span>
-                    <span className="text-muted">+{Math.round(f.weight * 100)}</span>
+              <div className="space-y-2.5">
+                {selected.factors.map((f) => (
+                  <div key={f.label}>
+                    <div className="flex justify-between text-xs mb-1">
+                      <span>{f.label}</span>
+                      <span className="text-muted">+{Math.round(f.weight * 100)}</span>
+                    </div>
+                    <ProgressBar value={f.weight * 100 * 2.2} tone={barTone(selected.suspicionScore)} />
                   </div>
-                  <ProgressBar value={f.weight * 100 * 2.2} tone={barTone(selected.suspicionScore)} />
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+
+          <SarThumbCard />
+        </div>
       </main>
     </>
   );

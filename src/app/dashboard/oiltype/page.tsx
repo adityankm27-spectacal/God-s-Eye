@@ -1,6 +1,7 @@
 import Topbar from "@/components/Topbar";
 import Chart from "@/components/Chart";
 import { Card, Badge, ProgressBar } from "@/components/ui";
+import SarThumbCard from "@/components/SarThumbCard";
 import { activeSpill, spectralSignature } from "@/lib/mockData";
 import { FlaskConical, BarChart3 } from "lucide-react";
 
@@ -69,26 +70,30 @@ export default function OilTypePage() {
           </Card>
         </div>
 
-        <Card title="Model Details" subtitle="Gradient-boosted spectral index classifier" icon={FlaskConical}>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
-            <div className="rounded-lg bg-surface-2 p-3">
-              <p className="text-muted">Model</p>
-              <p className="font-medium mt-1">LightGBM Classifier</p>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <Card title="Model Details" subtitle="Gradient-boosted spectral index classifier" icon={FlaskConical} className="lg:col-span-2">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+              <div className="rounded-lg bg-surface-2 p-3">
+                <p className="text-muted">Model</p>
+                <p className="font-medium mt-1">LightGBM Classifier</p>
+              </div>
+              <div className="rounded-lg bg-surface-2 p-3">
+                <p className="text-muted">Features</p>
+                <p className="font-medium mt-1">Spectral indices (11 bands)</p>
+              </div>
+              <div className="rounded-lg bg-surface-2 p-3">
+                <p className="text-muted">Training Set</p>
+                <p className="font-medium mt-1">1,840 labeled slick samples</p>
+              </div>
+              <div className="rounded-lg bg-surface-2 p-3">
+                <p className="text-muted">Validation Accuracy</p>
+                <p className="font-medium mt-1"><Badge tone="success">91.3%</Badge></p>
+              </div>
             </div>
-            <div className="rounded-lg bg-surface-2 p-3">
-              <p className="text-muted">Features</p>
-              <p className="font-medium mt-1">Spectral indices (11 bands)</p>
-            </div>
-            <div className="rounded-lg bg-surface-2 p-3">
-              <p className="text-muted">Training Set</p>
-              <p className="font-medium mt-1">1,840 labeled slick samples</p>
-            </div>
-            <div className="rounded-lg bg-surface-2 p-3">
-              <p className="text-muted">Validation Accuracy</p>
-              <p className="font-medium mt-1"><Badge tone="success">91.3%</Badge></p>
-            </div>
-          </div>
-        </Card>
+          </Card>
+
+          <SarThumbCard />
+        </div>
       </main>
     </>
   );
