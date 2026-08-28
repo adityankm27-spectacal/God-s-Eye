@@ -218,7 +218,7 @@ export interface CoastalAsset {
 }
 
 export const coastalAssets: CoastalAsset[] = [
-  { id: "A-1", name: "Malvan Marine Sanctuary", type: "Marine Protected Area", lng: 73.47, lat: 16.05, etaHours: 68, sensitivity: "High" },
+  { id: "A-1", name: "Malvan Marine Sanctuary", type: "Marine Protected Area", lng: 73.47, lat: 16.05, etaHours: 68, sensitivity: "Low" },
   { id: "A-2", name: "Ratnagiri Fishing Grounds", type: "Fishing Ground", lng: 73.3, lat: 16.99, etaHours: 41, sensitivity: "Medium" },
   { id: "A-3", name: "JNPT Port Approach", type: "Port", lng: 72.95, lat: 18.95, etaHours: 26, sensitivity: "High" },
 ];
@@ -237,11 +237,11 @@ export const pipeline: PipelineStage[] = [
   { id: "size", label: "Characterization", question: "How big is it?", status: "done", timestamp: "04:13 UTC" },
   { id: "oiltype", label: "Oil Type", question: "What kind of oil?", status: "done", timestamp: "04:14 UTC" },
   { id: "origin", label: "Backward Drift", question: "Where did it come from?", status: "done", timestamp: "04:16 UTC" },
-  { id: "forecast", label: "Forward Drift", question: "Where will it go?", status: "active", timestamp: "04:17 UTC" },
-  { id: "vessels", label: "Vessel Correlation", question: "Which ships were nearby?", status: "active" },
-  { id: "attribution", label: "Attribution", question: "Which ship is most suspicious?", status: "pending" },
-  { id: "alert", label: "Alert Authorities", question: "Report to nearest authorities", status: "pending" },
-  { id: "dashboard", label: "Dashboard", question: "Monitor & respond", status: "pending" },
+  { id: "forecast", label: "Forward Drift", question: "Where will it go?", status: "done", timestamp: "04:17 UTC" },
+  { id: "vessels", label: "Vessel Correlation", question: "Which ships were nearby?", status: "done", timestamp: "04:19 UTC" },
+  { id: "attribution", label: "Attribution", question: "Which ship is most suspicious?", status: "done", timestamp: "04:21 UTC" },
+  { id: "alert", label: "Alert Authorities", question: "Report to nearest authorities", status: "done", timestamp: "04:22 UTC" },
+  { id: "dashboard", label: "Dashboard", question: "Monitor & respond", status: "done", timestamp: "04:22 UTC" },
 ];
 
 export const kpis = {

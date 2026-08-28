@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Eye, Satellite, Ship, Waves, ArrowRight, Radar } from "lucide-react";
+import Image from "next/image";
+import { Satellite, Ship, Waves, ArrowRight, Radar } from "lucide-react";
 
 const features = [
   { icon: Satellite, title: "Satellite-based Spill Detection", desc: "SAR + EO imagery, AI segmentation, and look-alike filtering to confirm real slicks." },
@@ -20,9 +21,14 @@ export default function Home() {
           Smart India Hackathon 2026 · PS ID SIH26143 · Team BlueVision
         </div>
 
-        <div className="mt-8 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-accent to-accent-2 shadow-[0_0_60px_rgba(34,211,238,0.35)]">
-          <Eye className="h-10 w-10 text-background" strokeWidth={2.2} />
-        </div>
+        <Image
+          src="/brand/logo-icon-256.png"
+          alt="God's Eye"
+          width={256}
+          height={256}
+          className="mt-8 h-28 w-28 drop-shadow-[0_0_50px_rgba(34,211,238,0.35)]"
+          priority
+        />
 
         <h1 className="font-display mt-6 text-5xl md:text-6xl font-bold tracking-tight">God&apos;s Eye</h1>
         <p className="mt-4 max-w-2xl text-balance text-base md:text-lg text-muted">

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
@@ -11,7 +12,6 @@ import {
   Ship,
   FileWarning,
   Settings2,
-  Eye,
 } from "lucide-react";
 import clsx from "clsx";
 
@@ -32,9 +32,14 @@ export default function Sidebar() {
   return (
     <aside className="hidden md:flex md:w-64 shrink-0 flex-col border-r border-border bg-surface">
       <div className="flex items-center gap-2.5 px-5 h-16 border-b border-border">
-        <div className="relative flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-accent to-accent-2">
-          <Eye className="h-5 w-5 text-background" strokeWidth={2.5} />
-        </div>
+        <Image
+          src="/brand/logo-icon-128.png"
+          alt="God's Eye"
+          width={128}
+          height={128}
+          className="h-9 w-9 shrink-0"
+          priority
+        />
         <div>
           <p className="font-display text-[15px] font-bold leading-none tracking-tight">God&apos;s Eye</p>
           <p className="text-[10px] text-muted mt-1 tracking-wide">TEAM BLUEVISION · SIH 2026</p>

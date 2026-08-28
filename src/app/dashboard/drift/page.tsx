@@ -61,7 +61,13 @@ export default function DriftPage() {
               <div key={a.id} className="rounded-lg border border-border bg-surface-2 p-3">
                 <div className="flex items-start justify-between gap-2">
                   <p className="text-sm font-medium">{a.name}</p>
-                  <Badge tone={a.sensitivity === "High" ? "danger" : "warning"}>{a.sensitivity}</Badge>
+                  <Badge
+                    tone={
+                      a.sensitivity === "High" ? "danger" : a.sensitivity === "Medium" ? "warning" : "success"
+                    }
+                  >
+                    {a.sensitivity}
+                  </Badge>
                 </div>
                 <p className="text-xs text-muted mt-1">{a.type}</p>
                 <p className="text-xs text-accent-2 mt-2">ETA: {a.etaHours}h</p>
