@@ -1,0 +1,92 @@
+@import "tailwindcss";
+
+:root {
+  --background: #05080f;
+  --surface: #0b1120;
+  --surface-2: #111a2e;
+  --border: #1e293b;
+  --foreground: #e6edf7;
+  --muted: #8593ad;
+  --accent: #22d3ee;
+  --accent-2: #34d399;
+  --accent-orange: #fb923c;
+  --danger: #f87171;
+  --warning: #fbbf24;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-2: var(--accent-2);
+  --color-accent-orange: var(--accent-orange);
+  --color-danger: var(--danger);
+  --color-warning: var(--warning);
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-source-serif);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 999px;
+}
+
+.maplibregl-ctrl-attrib {
+  font-size: 10px !important;
+  background: rgba(5, 8, 15, 0.6) !important;
+  color: var(--muted) !important;
+}
+.maplibregl-ctrl-attrib a { color: var(--muted) !important; }
+.maplibregl-popup-content {
+  background: var(--surface-2) !important;
+  color: var(--foreground) !important;
+  border: 1px solid var(--border);
+  border-radius: 10px !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+.maplibregl-popup-tip { border-top-color: var(--surface-2) !important; border-bottom-color: var(--surface-2) !important; }
+.maplibregl-ctrl-group { background: var(--surface-2) !important; border: 1px solid var(--border) !important; }
+.maplibregl-ctrl-group button { filter: invert(1) hue-rotate(180deg); }
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.6); opacity: 0.9; }
+  70% { transform: scale(2.4); opacity: 0; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+.pulse-ring {
+  animation: pulse-ring 2.2s cubic-bezier(0.2, 0.6, 0.4, 1) infinite;
+}
+
+@keyframes scan {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+.scan-line {
+  animation: scan 3s linear infinite;
+}
+
+@keyframes dash {
+  to { stroke-dashoffset: -20; }
+}
+.dash-flow {
+  stroke-dasharray: 4 4;
+  animation: dash 1s linear infinite;
+}
