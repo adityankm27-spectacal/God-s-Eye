@@ -1,9 +1,10 @@
 import Topbar from "@/components/Topbar";
 import SarViewer from "@/components/SarViewer";
 import MapView from "@/components/MapView";
+import LiveDetection from "@/components/LiveDetection";
 import { Card, Badge, Stat } from "@/components/ui";
 import { sarImageMeta } from "@/lib/sarImage";
-import { Satellite, CheckCircle2, Cpu, Filter } from "lucide-react";
+import { Satellite, CheckCircle2, Cpu, Filter, Upload } from "lucide-react";
 
 export default function DetectionPage() {
   const acquired = new Date(sarImageMeta.acquiredAt);
@@ -12,6 +13,14 @@ export default function DetectionPage() {
     <>
       <Topbar title="Spill Detection" subtitle="Satellite acquisition → AI segmentation → real-slick filtering" />
       <main className="flex-1 space-y-5 p-4 md:p-6">
+        <Card
+          title="Live Inference — Upload a Scene"
+          subtitle="DeepLabv3+ segmentation · 5-class (sea / oil / look-alike / ship / land)"
+          icon={Upload}
+        >
+          <LiveDetection height={420} />
+        </Card>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           <Card
             title="SAR Scene — Real Validation Case"

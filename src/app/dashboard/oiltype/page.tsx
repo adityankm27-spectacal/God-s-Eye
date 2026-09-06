@@ -15,7 +15,7 @@ const candidates = [
 export default function OilTypePage() {
   return (
     <>
-      <Topbar title="Oil Type Identification" subtitle="Answer: What kind of oil? — Multispectral / hyperspectral matching" />
+      <Topbar title="Oil Type Identification" subtitle="Answer: What kind of oil? — Multispectral matching" />
       <main className="flex-1 space-y-5 p-4 md:p-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           <Card title="Spectral Signature Match" subtitle="Observed slick reflectance vs. reference crude library" icon={BarChart3} className="lg:col-span-2">

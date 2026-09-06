@@ -41,6 +41,7 @@ export function KpiCard({
   unit,
   icon: Icon,
   trend,
+  trendTone = "positive",
   tone = "default",
 }: {
   label: string;
@@ -48,6 +49,9 @@ export function KpiCard({
   unit?: string;
   icon: LucideIcon;
   trend?: string;
+  /** "muted" for caveats/assumptions, which must not read as a good-news
+   *  trend the way the default green does. */
+  trendTone?: "positive" | "muted";
   tone?: "default" | "danger" | "success";
 }) {
   return (
@@ -65,7 +69,11 @@ export function KpiCard({
         {value}
         {unit && <span className="text-sm text-muted font-normal ml-1">{unit}</span>}
       </p>
-      {trend && <p className="mt-1 text-[11px] text-accent-2">{trend}</p>}
+      {trend && (
+        <p className={clsx("mt-1 text-[11px]", trendTone === "muted" ? "text-muted" : "text-accent-2")}>
+          {trend}
+        </p>
+      )}
     </div>
   );
 }

@@ -48,6 +48,11 @@ export interface MapViewProps {
   center?: [number, number];
   zoom?: number;
   className?: string;
+  /** Overrides the illustrative mock slick with a real detection polygon
+   *  (e.g. from a job's geojson) and its popup content/marker position. */
+  slickPolygon?: [number, number][];
+  slickCenter?: [number, number];
+  slickPopupHtml?: string;
 }
 
 export default function MapView({
@@ -61,7 +66,12 @@ export default function MapView({
   center,
   zoom = 9,
   className,
+  slickPolygon: slickPolygonProp,
+  slickCenter,
+  slickPopupHtml,
 }: MapViewProps) {
+  const slickPolygonToShow = slickPolygonProp ?? slickPolygon;
+  const slickCenterToShow = slickCenter ?? [activeSpill.lng, activeSpill.lat];
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MLMap | null>(null);
 
@@ -71,7 +81,7 @@ export default function MapView({
     const map = new MLMap({
       container: containerRef.current,
       style: DARK_STYLE,
-      center: center ?? [activeSpill.lng, activeSpill.lat],
+      center: center ?? (showSlick ? slickCenterToShow : [activeSpill.lng, activeSpill.lat]),
       zoom,
       attributionControl: { compact: true },
     });
@@ -86,7 +96,7 @@ export default function MapView({
           data: {
             type: "Feature",
             properties: {},
-            geometry: { type: "Polygon", coordinates: [slickPolygon] },
+            geometry: { type: "Polygon", coordinates: [slickPolygonToShow] },
           },
         });
         map.addLayer({
@@ -108,10 +118,11 @@ export default function MapView({
           <div style="position:absolute;inset:0;border-radius:9999px;background:#f87171;border:2px solid white;"></div>
         </div>`;
         new Marker({ element: marker })
-          .setLngLat([activeSpill.lng, activeSpill.lat])
+          .setLngLat(slickCenterToShow)
           .setPopup(
             new Popup({ offset: 16 }).setHTML(
-              `<div style="font-size:12px;font-family:sans-serif;"><strong>${activeSpill.name}</strong><br/>${activeSpill.areaKm2} km² · ${activeSpill.confidence}% confidence</div>`
+              slickPopupHtml ??
+                `<div style="font-size:12px;font-family:sans-serif;"><strong>${activeSpill.name}</strong><br/>${activeSpill.areaKm2} km² · ${activeSpill.confidence}% confidence</div>`
             )
           )
           .addTo(map);
@@ -185,7 +196,7 @@ export default function MapView({
       // Frame the map around whatever features are actually shown
       if (!center) {
         const pts: [number, number][] = [];
-        if (showSlick) pts.push(...slickPolygon);
+        if (showSlick) pts.push(...slickPolygonToShow);
         if (showBackwardDrift) pts.push(...backwardDrift);
         if (showForwardDrift) pts.push(...forwardDrift);
         if (showVessels) allVessels.forEach((v) => pts.push([v.lng, v.lat]));
