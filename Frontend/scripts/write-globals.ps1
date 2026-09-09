@@ -1,3 +1,4 @@
+$css = @'
 @import "tailwindcss";
 
 /* ===========================================================
@@ -79,10 +80,10 @@ body {
 /* MapLibre overrides */
 .maplibregl-ctrl-attrib {
   font-size: 10px !important;
-  background: rgba(244,250,252,0.85) !important;
+  background: rgba(6,26,43,0.65) !important;
   color: var(--muted) !important;
 }
-.maplibregl-ctrl-attrib a { color: var(--accent-2) !important; }
+.maplibregl-ctrl-attrib a { color: var(--soft-cyan) !important; }
 .maplibregl-popup-content {
   background: var(--surface) !important;
   color: var(--foreground) !important;
@@ -219,12 +220,7 @@ body {
   outline: 2px solid var(--aqua);
   outline-offset: 2px;
 }
+'@
 
-/* Dark-navbar link — used on the landing page header */
-.nav-link {
-  color: var(--nav-text);
-  transition: color 200ms ease;
-}
-.nav-link:hover {
-  color: var(--ocean-white);
-}
+Set-Content -Path "src\app\globals.css" -Encoding UTF8 -Value $css
+Write-Host "Done."

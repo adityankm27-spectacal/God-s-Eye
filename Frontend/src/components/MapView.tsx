@@ -12,17 +12,15 @@ import {
   coastalAssets,
 } from "@/lib/mockData";
 
-// Esri's dark canvas is served without an API key and, unlike CARTO's anonymous
-// CDN, does not start returning "API KEY REQUIRED" watermark tiles once a burst
-// of requests trips its rate limit — which is exactly the failure you do not
-// want mid-demo. Note Esri orders tile paths {z}/{y}/{x}.
-const DARK_STYLE = {
+// Esri's light canvas is served without an API key and does not trip rate-limit
+// watermarks mid-demo. Note Esri orders tile paths {z}/{y}/{x}.
+const LIGHT_STYLE = {
   version: 8 as const,
   sources: {
     basemap: {
       type: "raster" as const,
       tiles: [
-        "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+        "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
       ],
       tileSize: 256,
       maxzoom: 16,
@@ -30,8 +28,8 @@ const DARK_STYLE = {
     },
   },
   layers: [
-    // Painted under the tiles so ocean reads as ocean before they load.
-    { id: "bg", type: "background" as const, paint: { "background-color": "#0b1120" } },
+    // Painted under the tiles so the ocean reads as light before tiles load.
+    { id: "bg", type: "background" as const, paint: { "background-color": "#EAF6F8" } },
     { id: "basemap-layer", type: "raster" as const, source: "basemap" },
   ],
 };
@@ -109,7 +107,7 @@ export default function MapView({
 
     const map = new MLMap({
       container: containerRef.current,
-      style: DARK_STYLE,
+      style: LIGHT_STYLE,
       center: center ?? (showSlick ? slickCenterToShow : [activeSpill.lng, activeSpill.lat]),
       zoom,
       attributionControl: { compact: true },

@@ -33,15 +33,23 @@ export default function Sidebar() {
     <aside className="hidden md:flex md:w-64 shrink-0 flex-col border-r border-border bg-surface">
       <div className="flex items-center gap-2.5 px-5 h-16 border-b border-border">
         <Image
-          src="/brand/logo-icon-128.png"
+          src="/brand/logo.png"
           alt="God's Eye"
-          width={128}
-          height={128}
-          className="h-9 w-9 shrink-0"
+          width={816}
+          height={816}
+          className="h-12 w-12 shrink-0 -translate-y-2"
           priority
         />
         <div>
-          <p className="font-display text-[15px] font-bold leading-none tracking-tight">God&apos;s Eye</p>
+          {/* <p className="font-display text-[15px] font-bold leading-none tracking-tight">God&apos;s Eye</p> */}
+          <Image
+            src="/brand/logo-name.png"
+            alt="God's Eye"
+            width={1254}
+            height={237}
+            className="h-8 w-40 shrink-0"
+            priority
+          />
           <p className="text-[10px] text-muted mt-1 tracking-wide">TEAM BLUEVISION · SIH 2026</p>
         </div>
       </div>
@@ -73,7 +81,7 @@ export default function Sidebar() {
           <p className="text-[11px] text-muted leading-relaxed">
             PS ID <span className="text-foreground font-mono">SIH26143</span>
             <br />
-            Theme: Space Technology
+            Theme: Disaster Management
           </p>
         </div>
       </div>
