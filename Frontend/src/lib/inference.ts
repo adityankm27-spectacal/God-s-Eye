@@ -45,6 +45,22 @@ export type Detection = {
   /** null unless the scene was genuinely georeferenced; an assumed pixel
    *  size yields an area but never a real position. */
   geometry: unknown | null;
+  /** Best-matching vessel from a live AIS feed (aisstream.io), or null when
+   *  attribution was on but nothing nearby matched. Undefined when
+   *  attribution wasn't requested for this job. */
+  attributed_vessel?: AttributedVessel | null;
+};
+
+export type AttributedVessel = {
+  mmsi: number;
+  name: string | null;
+  lat: number;
+  lon: number;
+  distance_km: number;
+  cog_deg: number;
+  sog_knots: number | null;
+  /** 0-1 blend of proximity and heading alignment, not a calibrated probability. */
+  confidence: number;
 };
 
 export type JobResult = {
@@ -55,6 +71,10 @@ export type JobResult = {
   area_estimated?: boolean;
   detections: Detection[];
   geojson: { type: string; features: unknown[] };
+  vessel_attribution_enabled?: boolean;
+  /** Set when attribution was requested but couldn't run (unreferenced
+   *  scene, missing server API key, or the AIS lookup itself failed). */
+  vessel_attribution_warning?: string | null;
 };
 
 async function expectOk(res: Response, what: string) {
@@ -71,11 +91,17 @@ async function expectOk(res: Response, what: string) {
   }
 }
 
-export async function createJob(file: File): Promise<{ job_id: string }> {
+export async function createJob(
+  file: File,
+  options?: { attributeVessels?: boolean }
+): Promise<{ job_id: string }> {
   const form = new FormData();
   form.append("file", file);
 
-  const res = await fetch(`${INFERENCE_API}/api/jobs`, {
+  const params = new URLSearchParams();
+  if (options?.attributeVessels) params.set("attribute_vessels", "true");
+
+  const res = await fetch(`${INFERENCE_API}/api/jobs?${params}`, {
     method: "POST",
     body: form,
   });

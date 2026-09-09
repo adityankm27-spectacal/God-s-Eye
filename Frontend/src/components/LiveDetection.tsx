@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Upload, Layers, AlertTriangle, ShieldAlert, Loader2, Ruler } from "lucide-react";
+import { Upload, Layers, AlertTriangle, ShieldAlert, Loader2, Ruler, Anchor } from "lucide-react";
 import clsx from "clsx";
 import { Badge, ProgressBar } from "@/components/ui";
 import {
@@ -34,6 +34,8 @@ export default function LiveDetection({ height = 420 }: { height?: number }) {
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [mode, setMode] = useState<Mode>("overlay");
+  const [lookalikeMax, setLookalikeMax] = useState(1);
+  const [attributeVessels, setAttributeVessels] = useState(false);
 
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const sceneUrlRef = useRef<string | null>(null);
@@ -62,6 +64,7 @@ export default function LiveDetection({ height = 420 }: { height?: number }) {
       setJob(null);
       setUploading(true);
       setMode("overlay");
+      setLookalikeMax(1);
 
       if (sceneUrlRef.current) URL.revokeObjectURL(sceneUrlRef.current);
       const url = URL.createObjectURL(file);
@@ -70,7 +73,7 @@ export default function LiveDetection({ height = 420 }: { height?: number }) {
       setFilename(file.name);
 
       try {
-        const { job_id } = await createJob(file);
+        const { job_id } = await createJob(file, { attributeVessels });
 
         pollRef.current = setInterval(async () => {
           try {
@@ -96,12 +99,13 @@ export default function LiveDetection({ height = 420 }: { height?: number }) {
         setUploading(false);
       }
     },
-    [stopPolling]
+    [stopPolling, attributeVessels]
   );
 
   const running = job !== null && !TERMINAL_STATES.includes(job.status);
   const busy = uploading || running;
   const detections = result?.detections ?? [];
+  const visibleDetections = detections.filter((d) => d.lookalike_border_frac <= lookalikeMax);
 
   return (
     <div className="space-y-4">
@@ -130,6 +134,21 @@ export default function LiveDetection({ height = 420 }: { height?: number }) {
           />
         </label>
 
+        <label className={clsx(
+          "flex items-center gap-1.5 text-[11px]",
+          busy ? "text-muted/60 cursor-not-allowed" : "text-muted cursor-pointer"
+        )}>
+          <input
+            type="checkbox"
+            checked={attributeVessels}
+            disabled={busy}
+            onChange={(e) => setAttributeVessels(e.target.checked)}
+            className="h-3.5 w-3.5 accent-accent"
+          />
+          <Anchor className="h-3 w-3" />
+          Attribute vessel (live AIS)
+        </label>
+
         {filename && (
           <p className="text-[11px] text-muted font-mono truncate max-w-[50%]">{filename}</p>
         )}
@@ -149,6 +168,16 @@ export default function LiveDetection({ height = 420 }: { height?: number }) {
           >
             <Ruler className="h-3 w-3" />
             View Characterization
+          </Link>
+        )}
+
+        {job?.status === "done" && attributeVessels && (
+          <Link
+            href={`/dashboard/vessels?job=${job.job_id}`}
+            className="flex items-center gap-1.5 text-[11px] text-accent hover:underline"
+          >
+            <Anchor className="h-3 w-3" />
+            View Vessel Attribution
           </Link>
         )}
       </div>
@@ -195,6 +224,16 @@ export default function LiveDetection({ height = 420 }: { height?: number }) {
             <p className="mt-0.5 text-warning/80 leading-relaxed">
               {job.message ?? "input did not pass the distribution check"}
             </p>
+          </div>
+        </div>
+      )}
+
+      {result?.vessel_attribution_warning && (
+        <div className="flex items-start gap-2 rounded-lg border border-warning/30 bg-warning/10 p-3 text-xs text-warning">
+          <ShieldAlert className="h-4 w-4 shrink-0 mt-0.5" />
+          <div>
+            <p className="font-medium">Vessel attribution unavailable</p>
+            <p className="mt-0.5 text-warning/80 leading-relaxed">{result.vessel_attribution_warning}</p>
           </div>
         </div>
       )}
@@ -261,7 +300,35 @@ export default function LiveDetection({ height = 420 }: { height?: number }) {
         </div>
       )}
 
-      {job?.status === "done" && <DetectionTable detections={detections} />}
+      {job?.status === "done" && detections.length > 0 && (
+        <div className="flex items-center justify-between gap-3">
+          <label className="flex items-center gap-2 text-[11px] text-muted">
+            Look-alike border
+            <select
+              value={lookalikeMax}
+              onChange={(e) => setLookalikeMax(Number(e.target.value))}
+              className="rounded-md border border-border bg-surface-2 px-2 py-1 text-[11px] text-foreground"
+            >
+              <option value={1}>All detections</option>
+              <option value={0.3}>≤ 30% (hide likely look-alikes)</option>
+              <option value={0.15}>≤ 15% (high confidence only)</option>
+            </select>
+          </label>
+          {visibleDetections.length !== detections.length && (
+            <span className="text-[11px] text-muted">
+              {visibleDetections.length} of {detections.length} shown
+            </span>
+          )}
+        </div>
+      )}
+
+      {job?.status === "done" && (
+        <DetectionTable
+          detections={visibleDetections}
+          hiddenByFilter={detections.length - visibleDetections.length}
+          showVessel={result?.vessel_attribution_enabled ?? false}
+        />
+      )}
 
       {result && !result.georeferenced && detections.length > 0 && (
         <p className="text-[11px] text-muted leading-relaxed">
@@ -274,11 +341,26 @@ export default function LiveDetection({ height = 420 }: { height?: number }) {
   );
 }
 
-function DetectionTable({ detections }: { detections: Detection[] }) {
+function DetectionTable({
+  detections,
+  hiddenByFilter = 0,
+  showVessel = false,
+}: {
+  detections: Detection[];
+  /** Detections that exist but were excluded by the look-alike filter, so the
+   *  empty state can say "filtered out" instead of falsely claiming nothing
+   *  was found in the scene. */
+  hiddenByFilter?: number;
+  /** Whether this job requested live AIS attribution, so the column only
+   *  appears when it can actually carry data. */
+  showVessel?: boolean;
+}) {
   if (detections.length === 0) {
     return (
       <p className="rounded-lg bg-surface-2 px-3 py-2.5 text-xs text-muted">
-        No slicks above the confidence and size thresholds in this scene.
+        {hiddenByFilter > 0
+          ? `All ${hiddenByFilter} detection${hiddenByFilter > 1 ? "s" : ""} in this scene were filtered out by the look-alike border threshold.`
+          : "No slicks above the confidence and size thresholds in this scene."}
       </p>
     );
   }
@@ -293,7 +375,8 @@ function DetectionTable({ detections }: { detections: Detection[] }) {
             <th className="pb-2 pr-3 font-medium">Confidence</th>
             <th className="pb-2 pr-3 font-medium">Elongation</th>
             <th className="pb-2 pr-3 font-medium">Orientation</th>
-            <th className="pb-2 font-medium">Look-alike border</th>
+            <th className="pb-2 pr-3 font-medium">Look-alike border</th>
+            {showVessel && <th className="pb-2 font-medium">Attributed vessel</th>}
           </tr>
         </thead>
         <tbody>
@@ -323,13 +406,28 @@ function DetectionTable({ detections }: { detections: Detection[] }) {
               <td className="py-2.5 pr-3 font-mono text-muted">
                 {d.orientation_deg !== null ? `${d.orientation_deg}°` : "—"}
               </td>
-              <td className="py-2.5">
+              <td className={clsx("py-2.5", showVessel && "pr-3")}>
                 {/* High look-alike border fraction is the model's own hint that
                     this slick sits in confusable territory. */}
                 <Badge tone={d.lookalike_border_frac > 0.3 ? "warning" : "default"}>
                   {(d.lookalike_border_frac * 100).toFixed(1)}%
                 </Badge>
               </td>
+              {showVessel && (
+                <td className="py-2.5 text-muted">
+                  {d.attributed_vessel ? (
+                    <span className="text-foreground">
+                      {d.attributed_vessel.name ?? `MMSI ${d.attributed_vessel.mmsi}`}
+                      <span className="ml-1 font-mono text-[10px] text-muted">
+                        {d.attributed_vessel.distance_km} km ·{" "}
+                        {(d.attributed_vessel.confidence * 100).toFixed(0)}%
+                      </span>
+                    </span>
+                  ) : (
+                    "No AIS match"
+                  )}
+                </td>
+              )}
             </tr>
           ))}
         </tbody>

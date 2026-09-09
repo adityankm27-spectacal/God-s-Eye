@@ -187,7 +187,13 @@ def main():
     model = load_model(args.model_in, compile=False)
 
     print("[3/4] compiling with the original loss (Dice + Focal)...")
-    class_weights = [0.1666] * IMG_CLASSES
+    # Oil is the minority class by a wide margin and the class that actually
+    # matters; sea is trivial and overrepresented. Equal weighting (the
+    # original 0.1666 each) gives the optimizer no reason to prioritize
+    # getting oil right over free accuracy on sea/land, which is why oil
+    # recall lagged badly on the held-out set. Order matches COLOR_MAP /
+    # CLASS_SEA..CLASS_LAND: [sea, oil, lookalike, ship, land].
+    class_weights = [0.05, 0.4, 0.2, 0.2, 0.15]
     total_loss = sm.losses.DiceLoss(class_weights=class_weights) + sm.losses.CategoricalFocalLoss()
     model.compile(
         optimizer=tf.keras.optimizers.Adam(learning_rate=args.lr),

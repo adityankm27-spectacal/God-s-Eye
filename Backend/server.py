@@ -28,6 +28,7 @@ from fastapi import BackgroundTasks, FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 
+import ais_attribution
 import sar_inference
 
 # ---------------------------------------------------------------------------
@@ -38,6 +39,8 @@ MODEL_PATH = os.getenv("MODEL_PATH", "models/deeplab_oil_finetuned.h5")
 UPLOAD_DIR = Path(os.getenv("UPLOAD_DIR", "data/uploads"))
 RESULT_DIR = Path(os.getenv("RESULT_DIR", "data/results"))
 MAX_UPLOAD_MB = int(os.getenv("MAX_UPLOAD_MB", "500"))
+AISSTREAM_API_KEY = os.getenv("AISSTREAM_API_KEY")
+AIS_WINDOW_S = float(os.getenv("AIS_WINDOW_S", "20"))
 
 ALLOWED_EXT = {".tif", ".tiff", ".png", ".jpg", ".jpeg"}
 
@@ -78,7 +81,8 @@ def _now():
 # Worker
 # ---------------------------------------------------------------------------
 
-def process_job(job_id, input_path, already_db, pixel_spacing_m=None):
+def process_job(job_id, input_path, already_db, pixel_spacing_m=None,
+                attribute_vessels=False):
     job = JOBS[job_id]
     try:
         job.update(status="running", progress=0.1, message="loading scene")
@@ -108,6 +112,19 @@ def process_job(job_id, input_path, already_db, pixel_spacing_m=None):
         detections, labels = sar_inference.extract_slicks(
             probs, transform, crs, assumed_pixel_m=pixel_spacing_m
         )
+
+        ais_warning = None
+        if attribute_vessels:
+            if not georeferenced:
+                ais_warning = "vessel attribution needs a georeferenced scene"
+            elif not AISSTREAM_API_KEY:
+                ais_warning = "AISSTREAM_API_KEY is not configured on the server"
+            else:
+                job.update(progress=0.85, message="matching live AIS traffic")
+                detections, ais_warning = ais_attribution.attribute_vessels_sync(
+                    detections, transform, arr.shape, AISSTREAM_API_KEY,
+                    duration_s=AIS_WINDOW_S,
+                )
 
         out_dir = RESULT_DIR / job_id
         out_dir.mkdir(parents=True, exist_ok=True)
@@ -140,6 +157,8 @@ def process_job(job_id, input_path, already_db, pixel_spacing_m=None):
                 "area_estimated": not georeferenced,
                 "detections": detections,
                 "geojson": {"type": "FeatureCollection", "features": features},
+                "vessel_attribution_enabled": attribute_vessels,
+                "vessel_attribution_warning": ais_warning,
             },
         )
     except Exception as exc:
@@ -164,10 +183,16 @@ def health():
 async def create_job(background: BackgroundTasks,
                      file: UploadFile = File(...),
                      linear: bool = False,
-                     pixel_spacing_m: float | None = None):
+                     pixel_spacing_m: float | None = None,
+                     attribute_vessels: bool = False):
     """pixel_spacing_m only applies to scenes with no geotransform, where it
     sets the assumed ground sampling distance used for area in km2. A
-    georeferenced scene measures its own and ignores this."""
+    georeferenced scene measures its own and ignores this.
+
+    attribute_vessels turns on live AIS matching (aisstream.io) for each
+    detected slick. It's a LIVE lookup with no historical archive, so it
+    only finds a match when a vessel is transmitting AIS right now, near
+    the scene - it cannot attribute a slick from an old or archival scene."""
     ext = Path(file.filename or "").suffix.lower()
     if ext not in ALLOWED_EXT:
         raise HTTPException(400, f"unsupported type {ext!r}; "
@@ -200,7 +225,7 @@ async def create_job(background: BackgroundTasks,
     }
 
     background.add_task(process_job, job_id, str(dest), not linear,
-                        pixel_spacing_m)
+                        pixel_spacing_m, attribute_vessels)
     return JSONResponse({"job_id": job_id, "status": "queued"}, status_code=202)
 
 
@@ -213,13 +238,38 @@ def job_status(job_id: str):
 
 
 @app.get("/api/jobs/{job_id}/result")
-def job_result(job_id: str):
+def job_result(job_id: str, max_lookalike_border_frac: float | None = None):
+    """max_lookalike_border_frac filters out detections whose border is
+    mostly ringed by the look-alike class (biogenic film, low-wind patches,
+    etc.) - a high fraction means the detection is more likely a false
+    positive than a real spill. E.g. 0.3 keeps only detections where under
+    30% of the surrounding border is look-alike. Omit to get everything."""
     job = JOBS.get(job_id)
     if not job:
         raise HTTPException(404, "unknown job")
     if job["status"] != "done":
         raise HTTPException(409, f"job is {job['status']}, not done")
-    return job["result"]
+
+    result = job["result"]
+    if max_lookalike_border_frac is None:
+        return result
+
+    detections = [
+        d for d in result["detections"]
+        if d["lookalike_border_frac"] <= max_lookalike_border_frac
+    ]
+    # geojson.features only covers detections that had geometry (georeferenced
+    # scenes), so it can't be filtered by zipping against `detections` - match
+    # each feature back to its detection by properties instead.
+    features = [
+        f for f in result["geojson"]["features"]
+        if f["properties"]["lookalike_border_frac"] <= max_lookalike_border_frac
+    ]
+    return {
+        **result,
+        "detections": detections,
+        "geojson": {**result["geojson"], "features": features},
+    }
 
 
 @app.get("/api/jobs/{job_id}/mask.png")
