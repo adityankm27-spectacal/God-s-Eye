@@ -79,10 +79,10 @@ body {
 /* MapLibre overrides */
 .maplibregl-ctrl-attrib {
   font-size: 10px !important;
-  background: rgba(6,26,43,0.65) !important;
+  background: rgba(244,250,252,0.85) !important;
   color: var(--muted) !important;
 }
-.maplibregl-ctrl-attrib a { color: var(--soft-cyan) !important; }
+.maplibregl-ctrl-attrib a { color: var(--accent-2) !important; }
 .maplibregl-popup-content {
   background: var(--surface) !important;
   color: var(--foreground) !important;
