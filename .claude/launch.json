@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "backend",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": ["-c", "cd \"/Users/adityanikam/Desktop/GOD'S EYE/Backend\" && ./venv/bin/uvicorn server:app --reload --port 8000"],
+      "port": 8000
+    }
+  ]
+}

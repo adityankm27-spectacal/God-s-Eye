@@ -10,7 +10,6 @@ import {
   forwardDrift,
   vessels as allVessels,
   coastalAssets,
-  Vessel,
 } from "@/lib/mockData";
 
 // Esri's dark canvas is served without an API key and, unlike CARTO's anonymous
@@ -37,6 +36,18 @@ const DARK_STYLE = {
   ],
 };
 
+export interface MapVessel {
+  id: string;
+  name: string;
+  type?: string;
+  lng: number;
+  lat: number;
+  course: number;
+  /** 0-100, drives marker color the same way suspicionScore does for the mock fleet. */
+  score: number;
+  popupHtml?: string;
+}
+
 export interface MapViewProps {
   height?: number | string;
   showSlick?: boolean;
@@ -53,6 +64,11 @@ export interface MapViewProps {
   slickPolygon?: [number, number][];
   slickCenter?: [number, number];
   slickPopupHtml?: string;
+  /** Overrides the illustrative mock fleet with real AIS-matched vessels. */
+  vessels?: MapVessel[];
+  /** Straight lines from a vessel's live position to the slick it was
+   *  attributed to - the real correlation, not a reconstructed track. */
+  correlationLines?: [number, number][][];
 }
 
 export default function MapView({
@@ -69,9 +85,22 @@ export default function MapView({
   slickPolygon: slickPolygonProp,
   slickCenter,
   slickPopupHtml,
+  vessels: vesselsProp,
+  correlationLines,
 }: MapViewProps) {
   const slickPolygonToShow = slickPolygonProp ?? slickPolygon;
   const slickCenterToShow = slickCenter ?? [activeSpill.lng, activeSpill.lat];
+  const vesselsToShow: MapVessel[] =
+    vesselsProp ??
+    allVessels.map((v) => ({
+      id: v.id,
+      name: v.name,
+      type: v.type,
+      lng: v.lng,
+      lat: v.lat,
+      course: v.course,
+      score: v.suspicionScore,
+    }));
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MLMap | null>(null);
 
@@ -151,9 +180,9 @@ export default function MapView({
 
       // Vessels
       if (showVessels) {
-        allVessels.forEach((v: Vessel) => {
+        vesselsToShow.forEach((v) => {
           const isHighlight = v.id === highlightVesselId;
-          const color = v.suspicionScore > 70 ? "#f87171" : v.suspicionScore > 40 ? "#fbbf24" : "#34d399";
+          const color = v.score > 70 ? "#f87171" : v.score > 40 ? "#fbbf24" : "#34d399";
           const el = document.createElement("div");
           el.style.width = isHighlight ? "18px" : "13px";
           el.style.height = isHighlight ? "18px" : "13px";
@@ -166,11 +195,18 @@ export default function MapView({
             .setLngLat([v.lng, v.lat])
             .setPopup(
               new Popup({ offset: 12 }).setHTML(
-                `<div style="font-size:12px;font-family:sans-serif;"><strong>${v.name}</strong><br/>${v.type}<br/>Suspicion: ${v.suspicionScore}%</div>`
+                v.popupHtml ??
+                  `<div style="font-size:12px;font-family:sans-serif;"><strong>${v.name}</strong><br/>${v.type ?? "Vessel"}<br/>Score: ${v.score}%</div>`
               )
             )
             .addTo(map);
         });
+      }
+
+      // Correlation lines: a vessel's live position straight to the slick it
+      // was attributed to - not a reconstructed historical track.
+      if (correlationLines) {
+        correlationLines.forEach((line, i) => addLine(`corr-${i}`, line, "#f87171", true));
       }
 
       // Coastal assets
@@ -199,8 +235,9 @@ export default function MapView({
         if (showSlick) pts.push(...slickPolygonToShow);
         if (showBackwardDrift) pts.push(...backwardDrift);
         if (showForwardDrift) pts.push(...forwardDrift);
-        if (showVessels) allVessels.forEach((v) => pts.push([v.lng, v.lat]));
+        if (showVessels) vesselsToShow.forEach((v) => pts.push([v.lng, v.lat]));
         if (showCoastalAssets) coastalAssets.forEach((a) => pts.push([a.lng, a.lat]));
+        if (correlationLines) correlationLines.forEach((line) => pts.push(...line));
         if (pts.length > 1) {
           const bounds = pts.reduce(
             (b, p) => b.extend(p),
