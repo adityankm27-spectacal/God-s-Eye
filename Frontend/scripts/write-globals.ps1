@@ -1,3 +1,4 @@
+$css = @'
 @import "tailwindcss";
 
 /* ===========================================================
@@ -219,12 +220,7 @@ body {
   outline: 2px solid var(--aqua);
   outline-offset: 2px;
 }
+'@
 
-/* Dark-navbar link — used on the landing page header */
-.nav-link {
-  color: var(--nav-text);
-  transition: color 200ms ease;
-}
-.nav-link:hover {
-  color: var(--ocean-white);
-}
+Set-Content -Path "src\app\globals.css" -Encoding UTF8 -Value $css
+Write-Host "Done."
