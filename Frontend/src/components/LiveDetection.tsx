@@ -26,7 +26,23 @@ const MODE_LABEL: Record<Mode, string> = {
   mask: "Oil Mask",
 };
 
-export default function LiveDetection({ height = 420 }: { height?: number }) {
+export type LiveDetectionState = {
+  job: JobStatus | null;
+  result: JobResult | null;
+};
+
+export default function LiveDetection({
+  height = 420,
+  onStateChange,
+  onSceneChange,
+}: {
+  height?: number;
+  /** Fired whenever job/result changes, so a parent page can mirror the
+   *  latest live job without re-implementing the upload/poll logic. */
+  onStateChange?: (state: LiveDetectionState) => void;
+  /** Called when a new file is picked (url + filename) or on reset (null, null). */
+  onSceneChange?: (sceneUrl: string | null, filename: string | null) => void;
+}) {
   const [sceneUrl, setSceneUrl] = useState<string | null>(null);
   const [filename, setFilename] = useState<string | null>(null);
   const [job, setJob] = useState<JobStatus | null>(null);
@@ -62,6 +78,7 @@ export default function LiveDetection({ height = 420 }: { height?: number }) {
       setUploadError(null);
       setResult(null);
       setJob(null);
+      onSceneChange?.(null, null);
       setUploading(true);
       setMode("overlay");
       setLookalikeMax(1);
@@ -71,6 +88,7 @@ export default function LiveDetection({ height = 420 }: { height?: number }) {
       sceneUrlRef.current = url;
       setSceneUrl(url);
       setFilename(file.name);
+      onSceneChange?.(url, file.name);
 
       try {
         const { job_id } = await createJob(file, { attributeVessels });
@@ -99,8 +117,16 @@ export default function LiveDetection({ height = 420 }: { height?: number }) {
         setUploading(false);
       }
     },
-    [stopPolling, attributeVessels]
+    [stopPolling, attributeVessels, onSceneChange]
   );
+
+  useEffect(() => {
+    onStateChange?.({ job, result });
+    // onStateChange is expected to be referentially stable (useCallback on
+    // the caller's side); omitting it from deps avoids re-firing on every
+    // parent render while still firing on every real job/result change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [job, result]);
 
   const running = job !== null && !TERMINAL_STATES.includes(job.status);
   const busy = uploading || running;
@@ -134,20 +160,7 @@ export default function LiveDetection({ height = 420 }: { height?: number }) {
           />
         </label>
 
-        <label className={clsx(
-          "flex items-center gap-1.5 text-[11px]",
-          busy ? "text-muted/60 cursor-not-allowed" : "text-muted cursor-pointer"
-        )}>
-          <input
-            type="checkbox"
-            checked={attributeVessels}
-            disabled={busy}
-            onChange={(e) => setAttributeVessels(e.target.checked)}
-            className="h-3.5 w-3.5 accent-accent"
-          />
-          <Anchor className="h-3 w-3" />
-          Attribute vessel (live AIS)
-        </label>
+
 
         {filename && (
           <p className="text-[11px] text-muted font-mono truncate max-w-[50%]">{filename}</p>

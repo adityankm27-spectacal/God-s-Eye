@@ -221,7 +221,7 @@ export default function Home() {
               style={{ color: "var(--muted)" }}
             >
               Detecting oil spills from space, tracing them back to their origin,
-              and ranking the suspected vessels, so we can alert the 
+              and ranking the suspected vessels, so we can alert the
               Indian Coast Guard first.
             </p>
           </div>

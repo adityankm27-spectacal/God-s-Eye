@@ -1,9 +1,16 @@
 import Topbar from "@/components/Topbar";
 import MapView from "@/components/MapView";
-import { Card, Stat, Badge } from "@/components/ui";
-import SarThumbCard from "@/components/SarThumbCard";
-import { coastalAssets } from "@/lib/mockData";
-import { Waves, History, TrendingUp, MapPinned } from "lucide-react";
+import { Card } from "@/components/ui";
+import { Waves, History, TrendingUp, MapPinned, AlertCircle } from "lucide-react";
+
+function EmptyBox({ message }: { message: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center gap-2.5 rounded-lg border border-dashed border-border bg-surface-2/40 px-4 py-8 text-center">
+      <AlertCircle className="h-6 w-6 text-muted opacity-40" />
+      <p className="text-xs text-muted max-w-[240px] leading-relaxed">{message}</p>
+    </div>
+  );
+}
 
 export default function DriftPage() {
   return (
@@ -34,46 +41,17 @@ export default function DriftPage() {
 
           <div className="space-y-5">
             <Card title="Origin Estimate" subtitle="Where did it come from?" icon={History}>
-              <div className="space-y-2.5">
-                <Stat label="Estimated origin point" value="71.50°E, 19.65°N" />
-                <Stat label="Estimated release time" value="24 Aug 2026, ~22:40 UTC" />
-                <Stat label="Backtrack duration" value="5.5 hours" />
-                <Stat label="Hindcast confidence" value="82%" />
-              </div>
+              <EmptyBox message="Backward drift computation runs after a scene is processed. Upload a SAR scene on the Detection page to populate this panel." />
             </Card>
 
             <Card title="Forecast" subtitle="Where will it go?" icon={TrendingUp}>
-              <div className="space-y-2.5">
-                <Stat label="Forecast horizon" value="48 hours" />
-                <Stat label="Direction of travel" value="SE, toward Konkan coast" />
-                <Stat label="Nearest landfall ETA" value="~26 hours" />
-                <Stat label="Forecast confidence" value="74% (decays with time)" />
-              </div>
+              <EmptyBox message="Forward drift forecast is available after a confirmed spill detection is processed through the pipeline." />
             </Card>
           </div>
         </div>
 
-        <SarThumbCard size="large" />
-
         <Card title="At-Risk Coastal Assets" subtitle="Sensitive zones along the forward drift cone" icon={MapPinned}>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {coastalAssets.map((a) => (
-              <div key={a.id} className="rounded-lg border border-border bg-surface-2 p-3">
-                <div className="flex items-start justify-between gap-2">
-                  <p className="text-sm font-medium">{a.name}</p>
-                  <Badge
-                    tone={
-                      a.sensitivity === "High" ? "danger" : a.sensitivity === "Medium" ? "warning" : "success"
-                    }
-                  >
-                    {a.sensitivity}
-                  </Badge>
-                </div>
-                <p className="text-xs text-muted mt-1">{a.type}</p>
-                <p className="text-xs text-accent-2 mt-2">ETA: {a.etaHours}h</p>
-              </div>
-            ))}
-          </div>
+          <EmptyBox message="Coastal assets at risk will populate here once a forward drift forecast is computed for an active spill detection." />
         </Card>
       </main>
     </>
