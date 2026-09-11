@@ -9,6 +9,7 @@ import {
   FlaskConical,
   FileWarning,
   ChevronRight,
+  ArrowUpRight
 } from "lucide-react";
 
 /* ── Nav links (unchanged from original) ────────────────── */
@@ -77,7 +78,7 @@ export default function Home() {
           NAVBAR
       ═══════════════════════════════════════════════════ */}
       <header
-        className="sticky top-0 z-50 w-full border-b bg-surface h-20"
+        className="sticky top-0 z-50 w-full border-b bg-surface h-20 flex  items-center"
         style={{ borderColor: "var(--border)" }}
         data-id="main-nav"
       >
@@ -90,7 +91,7 @@ export default function Home() {
               alt="God's Eye"
               width={1254}
               height={1254}
-              className="h-24 w-24 translate-y-2"
+              className="h-24 w-24 translate-y-0.5"
               priority
             />
             {/* <span className="font-display text-[17px] font-bold tracking-tight" style={{ color: "var(--foreground)" }}>
@@ -112,14 +113,14 @@ export default function Home() {
           </nav>
 
           {/* CTA */}
-          <Link
+          {/* <Link
             href="/dashboard"
             className="btn-ocean shrink-0 text-sm"
             data-id="nav-cta"
           >
             Open Dashboard
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
-          </Link>
+          </Link> */}
         </div>
       </header>
 
@@ -190,13 +191,7 @@ export default function Home() {
                 Explore Dashboard
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
-              <Link
-                href="/dashboard/detection"
-                className="btn-ocean-ghost"
-                data-id="hero-secondary-cta"
-              >
-                View Detection
-              </Link>
+
             </div>
 
             {/* Sentinel chips */}
@@ -232,7 +227,7 @@ export default function Home() {
           PIPELINE STRIP
       ═══════════════════════════════════════════════════ */}
       <section
-        className="relative z-10 mx-auto max-w-5xl px-6 md:px-10"
+        className="relative z-10 mx-auto max-w-4xl px-6 md:px-10 flex justify-center"
         style={{ marginTop: "-2rem" }}
         aria-label="Analysis pipeline"
       >
@@ -293,7 +288,7 @@ export default function Home() {
             Everything you need to respond.
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed" style={{ color: "var(--muted)" }}>
-            From raw satellite imagery to completely analyzed reports ; God&apos;s Eye handles the complete
+            From raw satellite imagery to completely analyzed reports; God&apos;s Eye handles the complete
             oil spill response pipeline.
           </p>
         </div>
@@ -413,16 +408,18 @@ export default function Home() {
             <span>· Team BlueVision · SIH 2026</span>
           </div>
           <nav className="flex items-center gap-5" aria-label="Footer navigation">
-            {navLinks.map((l) => (
-              <Link
-                key={l.href}
-                href={l.href}
-                className="transition-colors hover:text-foreground"
-                style={{ color: "var(--muted)" }}
-              >
-                {l.label}
-              </Link>
-            ))}
+
+            <Link
+              key={"GitHub"}
+              href={"https://github.com/adityankm27-spectacal/God-s-Eye.git"}
+              className="transition-colors hover:text-foreground flex"
+              style={{ color: "var(--muted)" }}
+              target="_blank"
+            >
+              GitHub
+              <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+
           </nav>
         </div>
       </footer>
