@@ -19,7 +19,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "God's Eye — Maritime Oil Spill Intelligence",
+  title: "God's Eye : Maritime Oil Spill Intelligence",
   description:
     "SIH 2026 · Team BlueVision — Satellite-based oil spill detection, drift forecasting and vessel attribution platform.",
 };

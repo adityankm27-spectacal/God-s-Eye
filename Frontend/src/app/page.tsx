@@ -24,13 +24,13 @@ const features = [
   {
     icon: Satellite,
     title: "Spill Detection",
-    desc: "SAR + EO imagery, AI segmentation, and look-alike filtering to confirm real slicks.",
+    desc: "SAR + EO Imagery, AI Segmentation, and Look Alike Filtering to confirm real slicks.",
     href: "/dashboard/detection",
   },
   {
     icon: Waves,
     title: "Drift & Origin",
-    desc: "Backward hindcasting and forward forecasting with wind, current, and wave data.",
+    desc: "Backward hindcasting and forward forecasting with wind, current, tide and wave data.",
     href: "/dashboard/drift",
   },
   {
@@ -48,7 +48,7 @@ const features = [
   {
     icon: FileWarning,
     title: "Evidence & Alerts",
-    desc: "Evidence compilation and one-click alerting to the nearest maritime authorities.",
+    desc: "Evidence Reports compilation and one click alerting to the nearest maritime authorities.",
     href: "/dashboard/evidence",
   },
   {
@@ -61,12 +61,12 @@ const features = [
 
 /* ── Pipeline steps — the real analysis chain ───────────── */
 const pipeline = [
-  { n: "01", label: "Ingest SAR image" },
-  { n: "02", label: "Detect slick" },
-  { n: "03", label: "Characterize oil" },
-  { n: "04", label: "Model drift" },
-  { n: "05", label: "Attribute vessel" },
-  { n: "06", label: "Alert authorities" },
+  { n: "01", label: "Input SAR image" },
+  { n: "02", label: "Slick Detection" },
+  { n: "03", label: "Characterize Oil" },
+  { n: "04", label: "Trace Back to Origin" },
+  { n: "05", label: "Attribute Vessels" },
+  { n: "06", label: "Alert Authorities" },
 ];
 
 export default function Home() {
@@ -205,7 +205,7 @@ export default function Home() {
               style={{ color: "var(--muted)" }}
             >
               <span className="flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1">
-                <Satellite className="h-3 w-3" aria-hidden="true" /> Sentinel-1 SAR
+                <Satellite className="h-3 w-3" aria-hidden="true" /> EOS-04 Satellite
               </span>
               <span className="flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1">
                 <Ship className="h-3 w-3" aria-hidden="true" /> Live AIS
@@ -221,8 +221,8 @@ export default function Home() {
               style={{ color: "var(--muted)" }}
             >
               Detecting oil spills from space, tracing them back to their origin,
-              and ranking the vessels responsible — so responders reach the right
-              place, with the right evidence, first.
+              and ranking the suspected vessels, so we can alert the 
+              Indian Coast Guard first.
             </p>
           </div>
         </div>
@@ -293,8 +293,8 @@ export default function Home() {
             Everything you need to respond.
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed" style={{ color: "var(--muted)" }}>
-            From raw satellite imagery to court-ready evidence — God&apos;s Eye handles the complete
-            oil-spill response pipeline.
+            From raw satellite imagery to completely analyzed reports ; God&apos;s Eye handles the complete
+            oil spill response pipeline.
           </p>
         </div>
 
@@ -375,7 +375,7 @@ export default function Home() {
             style={{ color: "var(--nav-text)" }}
           >
             Open the mission dashboard to view live spill data, vessel tracking,
-            drift forecasts, and the full analysis pipeline.
+            drift forecasts and the full analysis pipeline.
           </p>
           <Link
             href="/dashboard"
