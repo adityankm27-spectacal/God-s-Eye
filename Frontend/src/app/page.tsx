@@ -136,7 +136,7 @@ export default function Home() {
           {/* Change this image path to use a different hero image. */}
           <Image
             src="/hero/vessel.jpg"
-            alt="Maritime vessel under satellite surveillance"
+            alt="Margitime vessel under satellite surveillance"
             fill
             priority
             sizes="(max-width: 768px) 100vw, 62vw"
