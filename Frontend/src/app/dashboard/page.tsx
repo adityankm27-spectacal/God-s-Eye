@@ -1,16 +1,19 @@
 import Topbar from "@/components/Topbar";
 import PipelineStrip from "@/components/PipelineStrip";
 import MapView from "@/components/MapView";
-import Chart from "@/components/Chart";
-import { Card, KpiCard, Badge } from "@/components/ui";
-import SarThumbCard from "@/components/SarThumbCard";
-import { activeSpill, kpis, historicalSpills, vessels } from "@/lib/mockData";
-import { Droplets, Ship, Radar, BellRing, ArrowUpRight } from "lucide-react";
-import Link from "next/link";
+import { Card, KpiCard } from "@/components/ui";
+import { Droplets, Ship, Radar, BellRing, AlertCircle } from "lucide-react";
+
+function EmptyCard({ message }: { message: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center gap-2.5 rounded-lg border border-dashed border-border bg-surface-2/40 px-4 py-8 text-center">
+      <AlertCircle className="h-7 w-7 text-muted opacity-40" />
+      <p className="text-xs text-muted max-w-[240px] leading-relaxed">{message}</p>
+    </div>
+  );
+}
 
 export default function OverviewPage() {
-  const topVessel = [...vessels].sort((a, b) => b.suspicionScore - a.suspicionScore)[0];
-
   return (
     <>
       <Topbar title="Mission Overview" subtitle="Western Arabian Sea · Indian Coast Guard AOR" />
@@ -18,10 +21,10 @@ export default function OverviewPage() {
         <PipelineStrip />
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <KpiCard label="Active Spills" value={kpis.activeSpills} icon={Droplets} tone="danger" trend="+1 since yesterday" />
-          <KpiCard label="Vessels Tracked" value={kpis.vesselsTracked} icon={Ship} trend="Live AIS feed" />
-          <KpiCard label="Area Monitored" value={kpis.areaMonitoredKm2.toLocaleString()} unit="km²" icon={Radar} />
-          <KpiCard label="Alerts Sent (24h)" value={kpis.alertsSent24h} icon={BellRing} tone="success" trend="Avg. response 22 min" />
+          <KpiCard label="Active Spills" value="—" icon={Droplets} tone="danger" trend="No live data yet" />
+          <KpiCard label="Vessels Tracked" value="—" icon={Ship} trend="Awaiting AIS feed" />
+          <KpiCard label="Area Monitored" value="—" unit="km²" icon={Radar} />
+          <KpiCard label="Alerts Sent (24h)" value="—" icon={BellRing} trend="No alerts dispatched" />
         </div>
 
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
@@ -50,77 +53,18 @@ export default function OverviewPage() {
           </Card>
 
           <div className="space-y-5">
-            <Card title="Active Incident" subtitle={activeSpill.id} icon={Droplets}>
-              <div className="space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium">{activeSpill.name}</p>
-                  <Badge tone="danger">ACTIVE</Badge>
-                </div>
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div className="rounded-lg bg-surface-2 p-2">
-                    <p className="text-muted">Area</p>
-                    <p className="font-medium">{activeSpill.areaKm2} km²</p>
-                  </div>
-                  <div className="rounded-lg bg-surface-2 p-2">
-                    <p className="text-muted">Confidence</p>
-                    <p className="font-medium">{activeSpill.confidence}%</p>
-                  </div>
-                  <div className="rounded-lg bg-surface-2 p-2">
-                    <p className="text-muted">Volume</p>
-                    <p className="font-medium">{activeSpill.volumeBarrels.toLocaleString()} bbl</p>
-                  </div>
-                  <div className="rounded-lg bg-surface-2 p-2">
-                    <p className="text-muted">Oil Type</p>
-                    <p className="font-medium">Medium Crude</p>
-                  </div>
-                </div>
-                <Link href="/dashboard/detection" className="flex items-center gap-1 text-xs text-accent hover:underline pt-1">
-                  View detection details <ArrowUpRight className="h-3 w-3" />
-                </Link>
-              </div>
+            <Card title="Active Incident" subtitle="Most recent processed spill" icon={Droplets}>
+              <EmptyCard message="No active incident loaded. Process a SAR scene on the Spill Detection page to populate this panel." />
             </Card>
 
             <Card title="Top Suspect Vessel" subtitle="Highest attribution score" icon={Ship}>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium">{topVessel.name}</p>
-                  <p className="text-xs text-muted">{topVessel.type} · {topVessel.flag}</p>
-                </div>
-                <Badge tone="danger">{topVessel.suspicionScore}% risk</Badge>
-              </div>
-              <Link href="/dashboard/vessels" className="flex items-center gap-1 text-xs text-accent hover:underline pt-2">
-                View full ranking <ArrowUpRight className="h-3 w-3" />
-              </Link>
+              <EmptyCard message="No vessel analysis available. Enable vessel attribution when uploading a scene to see results here." />
             </Card>
-
-            <SarThumbCard />
           </div>
         </div>
 
         <Card title="Spill Trend — Last 6 Months" subtitle="Detected incidents & cumulative slick area across monitored AOR" icon={Radar}>
-          <Chart
-            data={[
-              {
-                x: historicalSpills.map((d) => d.month),
-                y: historicalSpills.map((d) => d.count),
-                type: "bar",
-                name: "Incidents",
-                marker: { color: "#22d3ee" },
-              },
-              {
-                x: historicalSpills.map((d) => d.month),
-                y: historicalSpills.map((d) => d.areaKm2),
-                type: "scatter",
-                mode: "lines+markers",
-                name: "Total Area (km²)",
-                yaxis: "y2",
-                line: { color: "#fb923c" },
-              },
-            ]}
-            layout={{
-              yaxis2: { overlaying: "y", side: "right", gridcolor: "transparent" },
-            }}
-          />
+          <EmptyCard message="Historical trend chart will populate as scenes are processed through the pipeline." />
         </Card>
       </main>
     </>
